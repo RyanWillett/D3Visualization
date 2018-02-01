@@ -1,5 +1,5 @@
 var dataSet = undefined;
-var gameDurationArr = [];
+var gameLengthDensityArr = [];
 
 function generateD3BarGraph(lengthX, lengthY) {
     var margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -9,8 +9,7 @@ function generateD3BarGraph(lengthX, lengthY) {
     var barWidth = 6;
     var barOffset = 3;
     //var x = d3.scaleBand().rangeRound([0, width]).paddingInner(0.05);
-
-    console.log(gameDurationArr);
+    var maxY = 0;
     //Create the svg canvas with a margin
     var svg = d3.select('#bar-chart')
     .append("div")
@@ -25,17 +24,17 @@ function generateD3BarGraph(lengthX, lengthY) {
     .style('background', '#dff0d8')
     .append("g")
     .attr("transform", "translate(" + 4*margin.left + "," + margin.top + ")");
-
-    console.log(maxVal(gameDurationArr));
+    console.log(gameLengthDensityArr);
+    maxY = maxVal(gameLengthDensityArr);
     var xAxisScale = d3.scaleLinear()
-                        .domain([0,gameDurationArr.length])
+                        .domain([0,gameLengthDensityArr.length])
                         .range([0,width]);
 
     var yAxisScale = d3.scaleLinear()
-                        .domain([maxVal(gameDurationArr), 0])
+                        .domain([maxY, 0])
                         .range([0,height]);
 
-    var xAxis = d3.axisBottom(xAxisScale);
+    var xAxis = d3.axisBottom(xAxisScale).ticks(gameLengthDensityArr.length);
 
     var yAxis = d3.axisLeft(yAxisScale);
     //Attach the x axis to the floor of the graph
@@ -59,41 +58,50 @@ function generateD3BarGraph(lengthX, lengthY) {
         .text("Frequency");
 
     //create rectangles for the bar graph
-    svg.selectAll('rect').data(gameDurationArr)
+    svg.selectAll('rect').data(gameLengthDensityArr)
     .enter().append('rect')
     .attr('width', barWidth)
     .attr('height', function (data) {
-        return data;
+        return data * (height/maxY);
     })
     .attr('x', function (data, i) {
         //console.log(data);
-        console.log(i)
-        return i * (width / gameDurationArr.length);
+        return i * (width / gameLengthDensityArr.length) - barWidth/2;
     })
     .attr('y', function (data) {
-        return height - data;
+        return height - (height/maxY) * data;
     })
     .attr('fill', '#d1c98b');
 }
 
-function getGameDurationArr(callback) {
+function getGameLengthDensityArr(callback) {
+    var gameDurationArr = [];
     for (var i = dataSet.length - 1; i >= 0; i--) {
         gameDurationArr.push(dataSet[i].game_duration);
     }
+    var maxGameLength = maxVal(gameDurationArr);
+    for (var i = 0; i < maxGameLength; i++) {
+        gameLengthDensityArr.push(0);
+    }
+    gameLengthDensityArr.push(0);
+    for (var i = 0; i < gameDurationArr.length; i++) {
+        console.log("storing val: " + gameDurationArr[i]);
+        gameLengthDensityArr[gameDurationArr[i]] += 1;
+    }
+
 }
 
 function waitForElement(){
     if(typeof dataSet !== "undefined"){
         //variable exists, do what you want
-        console.log(dataSet);
         var promise1 = new Promise(function(resolve, reject) {
-            getGameDurationArr((data) => {
-                getGameDurationArr = data;
+            getGameLengthDensityArr((data) => {
+                getgameLengthDensityArr = data;
                 resolve();
             });
         });
 
-        generateD3BarGraph(1024, 600);
+        generateD3BarGraph(16*50, 9*50);
     }
     else{
         setTimeout(waitForElement, 250);
