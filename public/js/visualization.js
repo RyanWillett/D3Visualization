@@ -3,12 +3,12 @@ var gameDurationArr = [];
 
 function generateD3BarGraph(lengthX, lengthY) {
     var margin = {top: 20, right: 10, bottom: 20, left: 10};
-    var width = lengthX - margin.left - margin.right,
-        height = lengthY - margin.top - margin.bottom;
+    var width = lengthX - 5*margin.left - 3*margin.right,
+        height = lengthY - 2*margin.top - 2*margin.bottom;
 //  the width of each bar and the offset between each bar
     var barWidth = 6;
     var barOffset = 3;
-    var x = d3.scaleBand().rangeRound([0, width]).paddingInner(0.05);
+    //var x = d3.scaleBand().rangeRound([0, width]).paddingInner(0.05);
 
     console.log(gameDurationArr);
     //Create the svg canvas with a margin
@@ -16,7 +16,7 @@ function generateD3BarGraph(lengthX, lengthY) {
     .append("div")
     .classed("svg-container", true) //container class to make it responsive
     .append('svg')
-    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("preserveAspectRatio", "xMinYMin")
     .attr("viewBox", "0 0 " + (width + 5*margin.left + 3*margin.right) + " " + (height + 2*margin.top + 2*margin.bottom))
     .classed("svg-content-responsive", true)
 
@@ -53,6 +53,11 @@ function generateD3BarGraph(lengthX, lengthY) {
       .style("text-anchor", "middle")
       .text("Game Duration");
 
+    svg.append("text")
+        .attr("transform", "translate(" + 2.7*-margin.left + " ," + (height/2) + ") rotate(-90)")
+        .style("text-anchor", "middle")
+        .text("Frequency");
+
     //create rectangles for the bar graph
     svg.selectAll('rect').data(gameDurationArr)
     .enter().append('rect')
@@ -61,8 +66,9 @@ function generateD3BarGraph(lengthX, lengthY) {
         return data;
     })
     .attr('x', function (data, i) {
-        console.log(data);
-        return i * (barWidth + barOffset);
+        //console.log(data);
+        console.log(i)
+        return i * (width / gameDurationArr.length);
     })
     .attr('y', function (data) {
         return height - data;
@@ -87,7 +93,7 @@ function waitForElement(){
             });
         });
 
-        generateD3BarGraph(960, 500);
+        generateD3BarGraph(1024, 600);
     }
     else{
         setTimeout(waitForElement, 250);
