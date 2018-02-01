@@ -5,6 +5,10 @@ ehthumbs.db
 # Folder config file
 Desktop.ini
 
+/node_modules/
+
+package-lock.json
+
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
